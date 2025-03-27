@@ -1,0 +1,14 @@
+// vercel.json
+{
+  "crons": [
+    {
+      "path": "/api/cron/sync-new-posts",
+      "schedule": "*/15 * * * *" // Every 15 minutes
+    },
+    {
+      "path": "/api/cron/sync-metadata",
+      "schedule": "0 */6 * * *" // Every 6 hours (at minute 0)
+    }
+    // Add more jobs as needed
+  ]
+}

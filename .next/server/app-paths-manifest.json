@@ -1,0 +1,3 @@
+{
+  "/api/admin/sync-subreddit/route": "app/api/admin/sync-subreddit/route.js"
+}

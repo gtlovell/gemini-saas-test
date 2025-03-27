@@ -1,0 +1,9 @@
+{
+  "pages": {
+    "/api/admin/sync-subreddit/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/admin/sync-subreddit/route.js"
+    ]
+  }
+}
