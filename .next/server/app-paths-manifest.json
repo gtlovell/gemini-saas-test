@@ -1,3 +1,3 @@
 {
-  "/api/admin/sync-subreddit/route": "app/api/admin/sync-subreddit/route.js"
+  "/api/admin/backfill-posts/route": "app/api/admin/backfill-posts/route.js"
 }

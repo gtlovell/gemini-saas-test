@@ -1,28 +1,18 @@
 // src/lib/supabase/service.ts
 
-import { createClient } from "@supabase/supabase-js"; // Use the standard JS client
-// import { Database } from "@/types/supabase";
-const SBurl = "https://efabsoerrhusepckjtht.supabase.co";
-const SBrole =
-  "eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVmYWJzb2Vycmh1c2VwY2tqdGh0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MzAxOTYyNCwiZXhwIjoyMDU4NTk1NjI0fQ.NxPppHCHrioaxSOAyqSluxGAe78Ef2GuTZ91ogPpO1o";
+import { createClient } from "@supabase/supabase-js";
+// import { Database } from "@/types/supabase"; // Uncomment if you have generated types
+
 // Ensure environment variables are defined (this code runs server-side only)
-const supabaseUrl = SBurl;
-const serviceRoleKey = SBrole;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl) {
   throw new Error("Missing environment variable: NEXT_PUBLIC_SUPABASE_URL");
 }
 if (!serviceRoleKey) {
-  // Provide a more helpful error message in development
-  if (process.env.NODE_ENV === "development") {
-    console.warn(
-      "Missing environment variable: SUPABASE_SERVICE_ROLE_KEY. This is required for service-level operations."
-    );
-    // Optionally throw anyway, or allow proceeding with limited functionality if applicable
-    // throw new Error("Missing environment variable: SUPABASE_SERVICE_ROLE_KEY");
-  } else {
-    throw new Error("Missing environment variable: SUPABASE_SERVICE_ROLE_KEY");
-  }
+  // The service role client cannot function without the key.
+  throw new Error("Missing environment variable: SUPABASE_SERVICE_ROLE_KEY");
 }
 
 // Create the service role client

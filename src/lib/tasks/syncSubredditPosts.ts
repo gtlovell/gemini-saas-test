@@ -1,4 +1,4 @@
-import { createClient } from "@/src/lib/supabase/service";
+import supabaseServiceRole from "@/src/lib/supabase/service"; // Import the initialized client instance
 import { getRedditClient, safeRedditAPICall } from "@/src/lib/reddit";
 import { syncSubredditMetadata, DbSubreddit } from "./syncSubredditMetadata"; // Reuse to ensure subreddit exists
 import type { Listing, Submission } from "snoowrap";
@@ -52,7 +52,7 @@ export async function syncSubredditPosts(
     time?: "hour" | "day" | "week" | "month" | "year" | "all";
   } = {}
 ): Promise<DbPost[] | null> {
-  const supabase = createClient();
+  const supabase = supabaseServiceRole; // Use the imported instance directly
   const r = getRedditClient(); // Snoowrap client
   const effectiveLimit = options.limit ?? POST_LISTING_LIMIT;
   const lowerCaseName = subredditName.toLowerCase();
@@ -89,7 +89,7 @@ export async function syncSubredditPosts(
   let redditPosts: Listing<Submission> | null = null;
   const fetchOptions = {
     limit: effectiveLimit,
-    after: options.after,
+    after: options.after ?? undefined, // Ensure 'after' is string or undefined, not null
     time: options.time,
   };
 
@@ -136,26 +136,29 @@ export async function syncSubredditPosts(
 
   // 3. Map Reddit Posts to DB Schema
   const postsToUpsert: PostUpsertData[] = redditPosts.map(
-    (post: Submission): PostUpsertData => ({
-      reddit_id: post.id, // Reddit's internal ID prefixed with t3_
-      subreddit_id: subredditId,
-      author_reddit_id: post.author?.id || null, // Author might be deleted '[deleted]'
-      author_name: post.author?.name || null,
-      title: post.title,
-      body: post.selftext || null,
-      url: post.url || null,
-      permalink: post.permalink || null,
-      score: post.score ?? 0,
-      upvote_ratio: post.upvote_ratio ?? null,
-      num_comments: post.num_comments ?? 0,
-      created_utc: new Date(post.created_utc * 1000).toISOString(),
-      last_scraped_at: new Date().toISOString(), // Mark as scraped now
-      flair_text: post.link_flair_text || null,
-      is_self: post.is_self ?? false,
-      is_video: post.is_video ?? false,
-      is_oc: post.is_original_content ?? false,
-      is_over_18: post.over_18 ?? false,
-    })
+    (post: Submission): PostUpsertData => {
+      const isAuthorDeleted = post.author?.name === "[deleted]";
+      return {
+        reddit_id: post.id, // Reddit's internal ID prefixed with t3_
+        subreddit_id: subredditId,
+        author_reddit_id: isAuthorDeleted ? null : post.author?.id || null,
+        author_name: isAuthorDeleted ? "[deleted]" : post.author?.name || null, // Keep '[deleted]' for name if applicable
+        title: post.title,
+        body: post.selftext || null,
+        url: post.url || null,
+        permalink: post.permalink || null,
+        score: post.score ?? 0,
+        upvote_ratio: post.upvote_ratio ?? null,
+        num_comments: post.num_comments ?? 0,
+        created_utc: new Date(post.created_utc * 1000).toISOString(),
+        last_scraped_at: new Date().toISOString(), // Mark as scraped now
+        flair_text: post.link_flair_text || null,
+        is_self: post.is_self ?? false,
+        is_video: post.is_video ?? false,
+        is_oc: post.is_original_content ?? false,
+        is_over_18: post.over_18 ?? false,
+      };
+    }
   );
 
   // 4. Upsert Posts into Supabase

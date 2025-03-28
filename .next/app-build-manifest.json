@@ -1,9 +1,9 @@
 {
   "pages": {
-    "/api/admin/sync-subreddit/route": [
+    "/api/admin/backfill-posts/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/admin/sync-subreddit/route.js"
+      "static/chunks/app/api/admin/backfill-posts/route.js"
     ]
   }
 }
